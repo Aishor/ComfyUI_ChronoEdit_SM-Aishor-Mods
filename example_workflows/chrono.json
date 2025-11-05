@@ -1,0 +1,912 @@
+{
+  "id": "1b6f829e-314b-480e-8702-919edc90d6d0",
+  "revision": 0,
+  "last_node_id": 45,
+  "last_link_id": 77,
+  "nodes": [
+    {
+      "id": 12,
+      "type": "CLIPLoader",
+      "pos": [
+        1374.9861615913358,
+        126.51052591371209
+      ],
+      "size": [
+        270,
+        106
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            11,
+            48
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+        "wan",
+        "default"
+      ]
+    },
+    {
+      "id": 1,
+      "type": "ChronoEdit_SM_Model",
+      "pos": [
+        1377.0788620191893,
+        -6.96093278024159
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "ChronoEdit_SM_Model",
+          "links": [
+            53
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ChronoEdit_SM_Model"
+      },
+      "widgets_values": [
+        "none",
+        "ChronoEdit-14B-Q6_K.gguf"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "CLIPVisionLoader",
+      "pos": [
+        1375.8423610481755,
+        389.06360491035485
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP_VISION",
+          "type": "CLIP_VISION",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPVisionLoader"
+      },
+      "widgets_values": [
+        "clip_vision_H.safetensors"
+      ]
+    },
+    {
+      "id": 36,
+      "type": "LoadImage",
+      "pos": [
+        3280.901524259264,
+        92.26470532104496
+      ],
+      "size": [
+        287.47779418945265,
+        488.777794189453
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            64
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "3 (1).png",
+        "image"
+      ]
+    },
+    {
+      "id": 37,
+      "type": "ChronoEdit_SM_Enhance_Loader",
+      "pos": [
+        3267.017901303272,
+        622.4580344978443
+      ],
+      "size": [
+        313.1607421875,
+        82
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "ChronoEdit_SM_Model_En",
+          "links": [
+            65
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ChronoEdit_SM_Enhance_Loader"
+      },
+      "widgets_values": [
+        "Qwen/Qwen2.5-VL-7B-Instruct",
+        "qwen_2.5_vl_7b.safetensors"
+      ]
+    },
+    {
+      "id": 34,
+      "type": "PreviewAny",
+      "pos": [
+        4042.6305137493346,
+        318.67137480200034
+      ],
+      "size": [
+        506.31674804687464,
+        356.61893182373046
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 2,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 62
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 16,
+      "type": "VAELoader",
+      "pos": [
+        1368.9340574043244,
+        276.5174839215245
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            14,
+            42
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "Wan2.1_VAE.pth"
+      ]
+    },
+    {
+      "id": 31,
+      "type": "ChronoEdit_SM_Lora",
+      "pos": [
+        2085.158377103694,
+        -84.79454012073616
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "ChronoEdit_SM_Model",
+          "link": 53
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "ChronoEdit_SM_Model",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ChronoEdit_SM_Lora"
+      },
+      "widgets_values": [
+        "wanqwen\\chronoedit_distill_lora.safetensors",
+        1
+      ]
+    },
+    {
+      "id": 28,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1715.0974425528066,
+        363.64705442822793
+      ],
+      "size": [
+        380.44451904296875,
+        156
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 48
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            75
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 26,
+      "type": "ChronoEdit_SM_Latent",
+      "pos": [
+        1755.3425629397436,
+        -58.04344156341703
+      ],
+      "size": [
+        270,
+        126
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 42
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 43
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Latent",
+          "type": "LATENT",
+          "links": [
+            73
+          ]
+        },
+        {
+          "name": "num_frames",
+          "type": "INT",
+          "links": [
+            76
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ChronoEdit_SM_Latent"
+      },
+      "widgets_values": [
+        720,
+        1280,
+        5
+      ]
+    },
+    {
+      "id": 10,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1718.9358181298664,
+        111.68232212287379
+      ],
+      "size": [
+        435.0312951270557,
+        214.31582064382576
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            21,
+            74
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "The user wants to change the scene so that the girl in the traditional-style painting, wearing her ornate floral robe and headdress, is now playing a ukulele. Her graceful appearance remains unchanged - smooth black hair tied neatly, soft facial features with a calm, focused expression - but her pose shifts: both hands are engaged with the ukulele. One hand rests on the neck of the instrument, fingers pressing the strings with delicate precision, while the other hand strums near the sound hole. The guitar is positioned naturally across her lap, blending with the elegance of her posture. The traditional painting style is preserved, but the addition of the guitar introduces a modern contrast, giving the scene a harmonious fusion of classical refinement and contemporary music."
+      ]
+    },
+    {
+      "id": 6,
+      "type": "LoadImage",
+      "pos": [
+        2262.843487565478,
+        408.317427393385
+      ],
+      "size": [
+        287.47779418945265,
+        488.777794189453
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            8,
+            43
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "2 (1).png",
+        "image"
+      ]
+    },
+    {
+      "id": 21,
+      "type": "unCLIPConditioning",
+      "pos": [
+        1915.4513751503503,
+        456.82121485384283
+      ],
+      "size": [
+        270,
+        102
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 21
+        },
+        {
+          "name": "clip_vision_output",
+          "type": "CLIP_VISION_OUTPUT",
+          "link": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "unCLIPConditioning"
+      },
+      "widgets_values": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": 8,
+      "type": "CLIPVisionEncode",
+      "pos": [
+        1369.6172413398226,
+        503.4507662661217
+      ],
+      "size": [
+        270,
+        78
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip_vision",
+          "type": "CLIP_VISION",
+          "link": 6
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CLIP_VISION_OUTPUT",
+          "type": "CLIP_VISION_OUTPUT",
+          "links": [
+            20
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPVisionEncode"
+      },
+      "widgets_values": [
+        "none"
+      ]
+    },
+    {
+      "id": 35,
+      "type": "ChronoEdit_SM_Enhance",
+      "pos": [
+        3601.8074033977728,
+        341.75565612829445
+      ],
+      "size": [
+        400,
+        200
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 2,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 64
+        },
+        {
+          "name": "model",
+          "type": "ChronoEdit_SM_Model_En",
+          "link": 65
+        }
+      ],
+      "outputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "links": [
+            62
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ChronoEdit_SM_Enhance"
+      },
+      "widgets_values": [
+        "为这个图片添加详细的提示词"
+      ]
+    },
+    {
+      "id": 15,
+      "type": "VAEDecode",
+      "pos": [
+        2772.423190094755,
+        122.57300607728605
+      ],
+      "size": [
+        140,
+        46
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 72
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            77
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 45,
+      "type": "SaveImage",
+      "pos": [
+        2658.2361423351963,
+        299.1219328016497
+      ],
+      "size": [
+        357.25442639160156,
+        390.7500000000001
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 77
+        }
+      ],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 41,
+      "type": "ChronoEdit_SM_KSampler",
+      "pos": [
+        2274.0155778029994,
+        18.348319394328314
+      ],
+      "size": [
+        335.439453125,
+        306
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "ChronoEdit_SM_Model",
+          "link": null
+        },
+        {
+          "name": "image_latent",
+          "type": "LATENT",
+          "link": 73
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 74
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 75
+        },
+        {
+          "name": "num_frames",
+          "type": "INT",
+          "link": 76
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Latent",
+          "type": "LATENT",
+          "links": [
+            72
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ChronoEdit_SM_KSampler"
+      },
+      "widgets_values": [
+        0,
+        "randomize",
+        2,
+        8,
+        1,
+        50,
+        true,
+        1
+      ]
+    },
+    {
+      "id": 44,
+      "type": "Note",
+      "pos": [
+        3132.850775521487,
+        -157.55144952303795
+      ],
+      "size": [
+        336.666748046875,
+        135.5555419921875
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "if unm_framer =29  need step >=50\n29步动画需要推理50步才行，vae解码用插件内置的，且不要选择none，任选一个作为条件\n推荐用法，8步加lora，5帧\n2.5vl只支持fp16的 不支持scale版本"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    }
+  ],
+  "links": [
+    [
+      6,
+      7,
+      0,
+      8,
+      0,
+      "CLIP_VISION"
+    ],
+    [
+      8,
+      6,
+      0,
+      8,
+      1,
+      "IMAGE"
+    ],
+    [
+      11,
+      12,
+      0,
+      10,
+      0,
+      "CLIP"
+    ],
+    [
+      14,
+      16,
+      0,
+      15,
+      1,
+      "VAE"
+    ],
+    [
+      20,
+      8,
+      0,
+      21,
+      1,
+      "CLIP_VISION_OUTPUT"
+    ],
+    [
+      21,
+      10,
+      0,
+      21,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      42,
+      16,
+      0,
+      26,
+      0,
+      "VAE"
+    ],
+    [
+      43,
+      6,
+      0,
+      26,
+      1,
+      "IMAGE"
+    ],
+    [
+      48,
+      12,
+      0,
+      28,
+      0,
+      "CLIP"
+    ],
+    [
+      53,
+      1,
+      0,
+      31,
+      0,
+      "ChronoEdit_SM_Model"
+    ],
+    [
+      62,
+      35,
+      0,
+      34,
+      0,
+      "*"
+    ],
+    [
+      64,
+      36,
+      0,
+      35,
+      0,
+      "IMAGE"
+    ],
+    [
+      65,
+      37,
+      0,
+      35,
+      1,
+      "ChronoEdit_SM_Model_En"
+    ],
+    [
+      72,
+      41,
+      0,
+      15,
+      0,
+      "LATENT"
+    ],
+    [
+      73,
+      26,
+      0,
+      41,
+      1,
+      "LATENT"
+    ],
+    [
+      74,
+      10,
+      0,
+      41,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      75,
+      28,
+      0,
+      41,
+      3,
+      "CONDITIONING"
+    ],
+    [
+      76,
+      26,
+      1,
+      41,
+      4,
+      "INT"
+    ],
+    [
+      77,
+      15,
+      0,
+      45,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "Group",
+      "bounding": [
+        1262.2834757982243,
+        -142.07857314213913,
+        1828.1516745196534,
+        1082.6868097805789
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "need high Vram",
+      "bounding": [
+        3127.186154355225,
+        -4.218865116383643,
+        1423.52778581543,
+        794.155434515381
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.620921323059155,
+      "offset": [
+        -1213.9813563102507,
+        349.4728027707341
+      ]
+    },
+    "frontendVersion": "1.28.8",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}
