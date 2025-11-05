@@ -1,0 +1,16 @@
+[project]
+name = "chronoedit_sm"
+description = "Towards Temporal Reasoning for Image Editing and World Simulation,you can use this node in comfyUI,and Vram >12G"
+version = "1.0.0"
+license = {file = "LICENSE"}
+dependencies = ["einops", "typing-extensions", "diffusers", "peft", "accelerate", "transformers", "sentencepiece", "tokenizers", "xfuse", "regex", "ftfy", "numpy", "pillow", "qwen-vl-utils", "tqdm", "imageio", "imageio-ffmpeg", "huggingface-hub"]
+
+[project.urls]
+Repository = "https://github.com/smthemex/ComfyUI_ChronoEdit_SM"
+#  Used by Comfy Registry https://registry.comfy.org
+
+[tool.comfy]
+PublisherId = "smthemex"
+DisplayName = "ComfyUI_ChronoEdit_SM"
+Icon = ""
+includes = []
