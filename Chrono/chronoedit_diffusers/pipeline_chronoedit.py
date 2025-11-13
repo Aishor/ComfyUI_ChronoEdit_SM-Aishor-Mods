@@ -659,7 +659,7 @@ class ChronoEditPipeline(DiffusionPipeline, WanLoraLoaderMixin):
             height,
             width,
             num_frames,
-            torch.bfloat16,
+            torch.float32,#torch.bfloat16
             device,
             generator,
             latents,
@@ -755,7 +755,7 @@ class ChronoEditPipeline(DiffusionPipeline, WanLoraLoaderMixin):
             )
             latents = latents / latents_std + latents_mean
 
-            if enable_temporal_reasoning and num_temporal_reasoning_steps > 0:
+            if enable_temporal_reasoning and latents.shape[2] > 2:
                 video_edit = self.vae.decode(latents[:, :, [0, -1]], return_dict=False)[0]
                 video_reason = self.vae.decode(latents[:, :, :-1], return_dict=False)[0]
                 video = torch.cat([video_reason, video_edit[:, :, 1:]], dim=2)
@@ -773,8 +773,8 @@ class ChronoEditPipeline(DiffusionPipeline, WanLoraLoaderMixin):
             latents_std = 1.0 / torch.tensor(self.vae.latents_std).view(1, self.vae.z_dim, 1, 1, 1).to(
                 latents.device, latents.dtype
             )
-            latents = latents / latents_std + latents_mean
-            video = latents
+            video = latents / latents_std + latents_mean
+            #video = latents 
 
         # Offload all models
         self.maybe_free_model_hooks()
