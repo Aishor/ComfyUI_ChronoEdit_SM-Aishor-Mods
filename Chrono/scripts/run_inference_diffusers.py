@@ -50,39 +50,30 @@ PYTHONPATH=$(pwd) python scripts/run_inference_diffusers.py \
 """
 
 
-
-import argparse
 import os
 import sys
-from pathlib import Path
-import torch.nn as nn
 import numpy as np
 import torch
-from diffusers.models.model_loading_utils import load_gguf_checkpoint
-from diffusers import AutoencoderKLWan
 from diffusers.schedulers import UniPCMultistepScheduler
 from omegaconf import OmegaConf
 from diffusers import  GGUFQuantizationConfig
 from diffusers.hooks import apply_group_offloading
-from diffusers import WanTransformer3DModel
+#from diffusers import WanTransformer3DModel
 from ..chronoedit_diffusers.pipeline_chronoedit import ChronoEditPipeline
-from ..chronoedit_diffusers.transformer_chronoedit import WanTransformer3DModel 
+#from ..chronoedit_diffusers.transformer_chronoedit import WanTransformer3DModel 
+from ..chronoedit_diffusers.transformer_chronoedit_ import WanTransformer3DModel
 from .prompt_enhancer import load_model as load_prompt_enhancer
 from .prompt_enhancer import enhance_prompt
-from transformers import (
-    Qwen2_5_VLForConditionalGeneration,AutoConfig,Qwen2_5_VLModel,Qwen2_5_VLTextModel)
-from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import Qwen2_5_VisionTransformerPretrainedModel
-from diffusers.quantizers.gguf.gguf_quantizer import _replace_with_gguf_linear
-from diffusers.quantizers.gguf.utils import GGUFParameter
-from qwen_vl_utils import process_vision_info
+from transformers import Qwen2_5_VLForConditionalGeneration,AutoConfig
+
 from ..util import load_checkpoint_and_dispatch_
 try:
     from transformers import Qwen3VLMoeForConditionalGeneration
     transfomer_vrsion_low=False
 except:
     transfomer_vrsion_low=True
-from accelerate import init_empty_weights,dispatch_model,cpu_offload_with_hook
-import accelerate
+from accelerate import init_empty_weights
+
 try:
     diffusers_module = sys.modules.get('diffusers')
     if diffusers_module:
@@ -104,7 +95,7 @@ def calculate_dimensions(image,  mod_value):
     
     Args:
         image: PIL Image
-        mod_value: Modulo value for dimension alignment
+        mod_value: Modulo value for dimension alignment # mod_value = pipe.vae_scale_factor_spatial * pipe.transformer.config.patch_size[1]  *2
         
     Returns:
         Tuple of (width, height)
@@ -114,7 +105,10 @@ def calculate_dimensions(image,  mod_value):
     target_area = 720 * 1280
     
     # Calculate dimensions maintaining aspect ratio
-    aspect_ratio = image.height / image.width
+    if isinstance(image, torch.Tensor):
+        aspect_ratio=image.shape[1] / image.shape[2]
+    else:
+        aspect_ratio = image.height / image.width
     calculated_height = round(np.sqrt(target_area * aspect_ratio)) // mod_value * mod_value
     calculated_width = round(np.sqrt(target_area / aspect_ratio)) // mod_value * mod_value
     
@@ -131,11 +125,25 @@ def load_dit_model(ckpt_path, gguf_path,dir_path):
             torch_dtype=torch.bfloat16,
             )
     elif ckpt_path is not None:
-        transformer = WanTransformer3DModel.from_single_file(
-                ckpt_path,
-                subfolder="transformer",
-                torch_dtype=torch.bfloat16)
+        from safetensors.torch import load_file
+        sd=load_file(ckpt_path,device="cpu")
+        sd=replace_key(sd)
+        with init_empty_weights():
+            config=WanTransformer3DModel.load_config(os.path.join(dir_path, "Chrono/ChronoEdit-14B-Diffusers/transformer"))
+            transformer=WanTransformer3DModel.from_config(config)
+        model_state_dict = transformer.state_dict()
+        expected_keys = set(model_state_dict.keys())
+        del transformer
+        # 过滤掉模型不需要的键值对
+        filtered_sd = {k: v for k, v in sd.items() if k in expected_keys}
 
+        # 检查是否有缺失的键
+        missing_keys = expected_keys - set(sd.keys())
+        if missing_keys:
+            print(f"Warning: Missing keys in checkpoint: {missing_keys}")
+        del sd   
+        transformer = WanTransformer3DModel.from_single_file(filtered_sd,config=os.path.join(dir_path, "Chrono/ChronoEdit-14B-Diffusers/transformer"),torch_dtype=torch.bfloat16)
+        del filtered_sd
     vae_config = OmegaConf.load(os.path.join(dir_path, "Chrono/ChronoEdit-14B-Diffusers/vae/config.json")) 
     pipe = ChronoEditPipeline.from_pretrained(
             os.path.join(dir_path, "Chrono/ChronoEdit-14B-Diffusers"),
@@ -195,6 +203,83 @@ def load_prompt_enhancer_cf(clip_path,repo):
     return model
 
 
+def replace_key(t_state_dict):
+    new_dict = {}
+    unused_keys = {'model_sampling.sigmas'}
+    for k, v in t_state_dict.items():
+        if k in unused_keys:
+            continue
+        new_k = k
+        if k.startswith("text_embedding.0."):
+            new_k = k.replace("text_embedding.0.", "condition_embedder.text_embedder.linear_1.")
+        elif k.startswith("text_embedding.2."):
+            new_k = k.replace("text_embedding.2.", "condition_embedder.text_embedder.linear_2.")
+        elif k.startswith("time_embedding.0."):
+            new_k = k.replace("time_embedding.0.", "condition_embedder.time_embedder.linear_1.")
+        elif k.startswith("time_embedding.2."):
+            new_k = k.replace("time_embedding.2.", "condition_embedder.time_embedder.linear_2.")
+        elif k.startswith("time_projection.1."):
+            new_k = k.replace("time_projection.1.", "condition_embedder.time_proj.")
+        elif k.startswith("img_emb.proj.1."):
+            new_k = k.replace("img_emb.proj.1.", "condition_embedder.image_embedder.ff.net.0.proj.")
+        elif k.startswith("img_emb.proj.3."):
+            new_k = k.replace("img_emb.proj.3.", "condition_embedder.image_embedder.ff.net.2.")
+        elif k.startswith("img_emb.proj.0."):
+            new_k = k.replace("img_emb.proj.0.", "condition_embedder.image_embedder.norm1.")
+        elif k.startswith("img_emb.proj.4."):
+            new_k = k.replace("img_emb.proj.4.", "condition_embedder.image_embedder.norm2.")
+        elif k.startswith("head.modulation"):
+            new_k = k.replace("head.modulation", "scale_shift_table")
+        elif k.startswith("head.head."):
+            new_k = k.replace("head.head.", "proj_out.")
+        elif k.startswith("blocks."):
+            if ".ffn.0." in k:
+                new_k = k.replace(".ffn.0.", ".ffn.net.0.proj.")
+            elif '.ffn.2.' in k:
+                new_k = k.replace('.ffn.2.', '.ffn.net.2.')
+            elif '.modulation' in k:
+                new_k = k.replace('.modulation', '.scale_shift_table')
+            elif ".norm3." in k:
+                new_k = k.replace('.norm3.', '.norm2.')
+            elif "self_attn.o." in k:
+                new_k = k.replace("self_attn.o.", "attn1.to_out.0.")
+            elif "self_attn.q." in k:
+                new_k = k.replace("self_attn.q.", "attn1.to_q.")
+            elif "self_attn.k." in k:
+                new_k = k.replace("self_attn.k.", "attn1.to_k.")
+            elif "self_attn.v." in k:
+                new_k = k.replace("self_attn.v.", "attn1.to_v.")
+            elif ".self_attn.norm_k." in k:
+                new_k = k.replace(".self_attn.norm_k.", ".attn1.norm_k.")
+            elif ".self_attn.norm_q." in k:
+                new_k = k.replace(".self_attn.norm_q.", ".attn1.norm_q.")
+            elif ".cross_attn.k." in k:
+                new_k = k.replace(".cross_attn.k.", ".attn2.to_k.")
+            elif ".cross_attn.q." in k:
+                new_k = k.replace(".cross_attn.q.", ".attn2.to_q.")
+            elif ".cross_attn.v." in k:
+                new_k = k.replace(".cross_attn.v.", ".attn2.to_v.")
+            elif ".cross_attn.o." in k:
+                new_k = k.replace(".cross_attn.o.", ".attn2.to_out.0.")
+            elif ".cross_attn.norm_k." in k:
+                new_k = k.replace(".cross_attn.norm_k.", ".attn2.norm_k.")
+            elif ".cross_attn.norm_q." in k:
+                new_k = k.replace(".cross_attn.norm_q.", ".attn2.norm_q.")
+            elif ".cross_attn.norm_k_img." in k:
+                new_k = k.replace(".cross_attn.norm_k_img.", ".attn2.norm_added_k.")
+            elif ".cross_attn.k_img." in k:
+                new_k = k.replace(".cross_attn.k_img.", ".attn2.add_k_proj.")
+            elif ".cross_attn.v_img." in k:
+                new_k = k.replace(".cross_attn.v_img.", ".attn2.add_v_proj.")
+            else:
+                new_k = k   
+        else:
+            new_k = k
+        
+        new_dict[new_k] = v
+    return new_dict
+
+
 
 def remap_state_dict_keys(state_dict):
     """Remap state dict keys to match model architecture"""
@@ -218,7 +303,7 @@ def remap_state_dict_keys(state_dict):
     
     return new_state_dict
 
-def inference_chrono(pipe,image_latent,positive,clip_vison,negative,flow_shift,seed,num_inference_steps,height,width,
+def inference_chrono(pipe,image_latent,positive,image_embeds,negative,flow_shift,seed,num_inference_steps,height,width,
               num_frames,num_temporal_reasoning_steps,guidance_scale=5.0,offload_model=True,block_num=1,device="cuda"):
     
     pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config,flow_shift=flow_shift)
@@ -233,7 +318,7 @@ def inference_chrono(pipe,image_latent,positive,clip_vison,negative,flow_shift,s
         image=None,
         prompt=None,
         negative_prompt=None,
-        image_embeds=clip_vison, #torch.Size([1, 257, 1280])
+        image_embeds=image_embeds, #torch.Size([1, 257, 1280])
         prompt_embeds=positive,
         negative_prompt_embeds=negative,
         height=height,
