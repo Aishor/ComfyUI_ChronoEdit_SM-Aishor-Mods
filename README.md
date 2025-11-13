@@ -1,7 +1,9 @@
 # ComfyUI_ChronoEdit_SM
-[ChronoEdit](https://github.com/nv-tlabs/ChronoEdit): Towards Temporal Reasoning for Image Editing and World Simulation,you can use this node in comfyUI,and Vram >12G
+[ChronoEdit](https://github.com/nv-tlabs/ChronoEdit): Towards Temporal Reasoning for Image Editing and World Simulation,you can use this node in comfyUI,and Vram >8G
 
 # Update
+* support upscale lora  and fp8 dit，if use 8 step and upscale need step>12,if  use upscale only need steps>35
+*  支持fp8量化模型和放大lora，两个一起用时最好步数大一点，不用加速时，步数大于35
 * 推荐5帧8步lora/ use 5 frames 8 steps lora
 * 如果跑29帧要跑50步/ if use 29 frames need 50 steps
 
@@ -24,11 +26,13 @@ pip install -r requirements.txt
 3.checkpoints 
 ----
 
-1.gguf [links](https://huggingface.co/QuantStack/ChronoEdit-14B-GGUF/tree/main)   
-2.lora [links](https://huggingface.co/nvidia/ChronoEdit-14B-Diffusers/tree/main/lora)   
-3.wan T5 clipvison vae [ links](https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged) 
+1. gguf [links](https://huggingface.co/QuantStack/ChronoEdit-14B-GGUF/tree/main)   
+2. dit fp8 [links](https://huggingface.co/cocorang/ChronoEdit-14B-Diffusers-FP8) optional
+3. 8 steps lora [links](https://huggingface.co/nvidia/ChronoEdit-14B-Diffusers/tree/main/lora) 
+4. upscale lora [links](https://huggingface.co/nvidia/ChronoEdit-14B-Diffusers-Upscaler-Lora)
+5 .wan T5 clipvison vae [ links](https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged) 
 ```
-├── ComfyUI/models/gguf
+├── ComfyUI/models/gguf # or fp8 
 |     ├── ChronoEdit-14B-Q6_K.gguf # or Q8
 ├── ComfyUI/models/vae
 |        ├──Wan2.1_VAE.pth
@@ -39,6 +43,7 @@ pip install -r requirements.txt
 |        ├──clip_vision_h.safetensors
 ├── ComfyUI/models/loras 
 |        ├──chronoedit_distill_lora.safetensors
+|        ├──upsample_lora_diffusers.safetensors
 
 ```
 
