@@ -11,6 +11,49 @@ from comfy.utils import common_upscale,ProgressBar
 
 cur_path = os.path.dirname(os.path.abspath(__file__))
 
+def map_0_1_to_neg1_1(t):
+    """
+    接受 torch.Tensor 或可转 torch.Tensor 的输入。
+    可处理形状: H,W,C 或 B,H,W,C 或 B,T,H,W,C（会按元素处理）。
+    确保 float，0..255 -> 0..1，再把 0..1 -> -1..1（如果已经在 -1..1 则不变）。
+    """
+    if not torch.is_tensor(t):
+        t = torch.tensor(t)
+    t = t.float()
+    # 处理 0..255 的情况
+    try:
+        vmax = float(t.max())
+    except Exception:
+        vmax = 1.0
+    if vmax > 2.0:
+        t = t / 255.0
+    # 若当前处于 0..1 范围，则映射到 -1..1
+    try:
+        vmin = float(t.min())
+        vmax = float(t.max())
+    except Exception:
+        vmin, vmax = -1.0, 1.0
+    if vmin >= 0.0 and vmax <= 1.1:
+        t = t * 2.0 - 1.0
+    return t
+
+def map_neg1_1_to_0_1(t):
+    """
+    接受 torch.Tensor 或可转 torch.Tensor 的输入。
+    可处理形状: H,W,C 或 B,H,W,C 或 B,T,H,W,C（会按元素处理）。
+    返回 float tensor，范围 0..1。
+    """
+    if not torch.is_tensor(t):
+        t = torch.tensor(t)
+    t = t.float()
+    # map -1..1 -> 0..1
+    t = (t + 1.0) * 0.5
+    # 限幅到 [0,1]
+    t = t.clamp(0.0, 1.0)
+    # 保持在 cpu 端，调用方可决定是否转 device/dtype
+    return t.cpu()
+
+
 def gc_cleanup():
     gc.collect()
     torch.cuda.empty_cache()
